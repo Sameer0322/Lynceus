@@ -1,0 +1,9 @@
+.git
+.github
+.gitignore
+*.md
+frontend/
+app/
+backend/db/
+backend/srv/target/
+backend/srv/src/test/
