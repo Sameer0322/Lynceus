@@ -1,0 +1,47 @@
+# ── Maven build output ────────────────────────
+backend/srv/target/
+backend/*/target/
+**/*.class
+.flattened-pom.xml
+
+# ── Node modules ──────────────────────────────
+node_modules/
+
+# ── IDE ───────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.suo
+*.user
+
+# ── OS ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Environment / secrets ─────────────────────
+.env
+.env.*
+*.env
+!.env.example
+!**/.env.example
+# application.yaml contains real credentials — use application.yaml.example as template
+backend/srv/src/main/resources/application.yaml
+
+# ── Logs ──────────────────────────────────────
+*.log
+logs/
+
+# ── Playwright MCP session artifacts ──────────
+.playwright-mcp/
+
+# ── Frontend (React / Vite) ───────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+
+# ── Legacy CDS build artefacts (not used in OSS version) ──
+backend/package-lock.json
+backend/node_modules/
+
+# ── Internal QA docs (not for public repo) ────
+docs/flows/
