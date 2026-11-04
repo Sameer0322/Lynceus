@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: pipeline-backend
+  datasource:
+    url: jdbc:h2:mem:pipeline;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:h2-init.sql
+
+server:
+  port: 8080
+
+app:
+  jwt-secret: "<generate-a-random-secret-of-at-least-32-characters>"
+  allowed-origin: "http://localhost:5173"  # Vite dev server default; update if your frontend runs on a different port
+  github-token: "<your-github-personal-access-token>"
+  github-token-secondary: ""              # Optional: second PAT for rate-limit failover
+  github-api-url: "https://api.github.com"  # GitHub.com; for GHE: https://your-ghe-host/api/v3
+  workflow-name: ""                       # Leave blank to show all workflows; set to filter by name (e.g. "CI")
+  admin:
+    username: admin
+    password: "<choose-a-strong-password>"
