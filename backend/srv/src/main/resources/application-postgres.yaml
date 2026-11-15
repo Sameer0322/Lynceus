@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: ${JDBC_DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:h2-init.sql
+
+app:
+  jwt-secret: ${JWT_SECRET}
+  allowed-origin: ${ALLOWED_ORIGIN}
+  github-token: ${GITHUB_TOKEN:}
+  github-token-secondary: ${GITHUB_TOKEN_SECONDARY:}
+  github-api-url: ${GITHUB_API_URL:https://api.github.com}
+  workflow-name: ${WORKFLOW_NAME:}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD}
