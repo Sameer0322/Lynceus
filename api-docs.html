@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lynceaus — Backend API Reference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:   #0070f3;
+    --success: #16a34a;
+    --warn:    #d97706;
+    --danger:  #dc2626;
+    --purple:  #7c3aed;
+    --gray-50: #f8fafc;
+    --gray-100:#f1f5f9;
+    --gray-200:#e2e8f0;
+    --gray-400:#94a3b8;
+    --gray-600:#475569;
+    --gray-800:#1e293b;
+    --gray-900:#0f172a;
+    --radius:  6px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--gray-800);
+    background: #fff;
+    padding: 0;
+  }
+
+  /* ── Cover page ── */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 80px 72px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #0070f3 100%);
+    color: #fff;
+    page-break-after: always;
+  }
+  .cover-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 20px; }
+  .cover h1 { font-size: 42px; font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
+  .cover h1 span { color: #60a5fa; }
+  .cover-sub { font-size: 16px; color: rgba(255,255,255,.7); margin-bottom: 56px; max-width: 520px; }
+  .cover-meta { display: flex; gap: 40px; flex-wrap: wrap; }
+  .cover-meta div { display: flex; flex-direction: column; gap: 4px; }
+  .cover-meta .key { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.4); }
+  .cover-meta .val { font-size: 14px; font-weight: 500; }
+  .cover-badge {
+    display: inline-block; margin-top: 48px; padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,.2); border-radius: 20px;
+    font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,.6);
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 820px; margin: 0 auto; padding: 56px 64px; }
+
+  /* ── Typography ── */
+  h1 { font-size: 28px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+  h2 { font-size: 20px; font-weight: 600; color: var(--gray-900); margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--gray-200); }
+  h3 { font-size: 15px; font-weight: 600; color: var(--gray-800); margin: 32px 0 10px; }
+  p  { margin-bottom: 10px; color: var(--gray-600); }
+
+  /* ── Table of contents ── */
+  .toc { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 24px 28px; margin: 32px 0; page-break-after: always; }
+  .toc h2 { margin-top: 0; border: none; padding: 0; margin-bottom: 16px; font-size: 16px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { padding: 3px 0; color: var(--gray-600); font-size: 13px; }
+  .toc li a { color: var(--brand); text-decoration: none; }
+  .toc .sub { list-style: none; padding-left: 20px; }
+  .toc .sub li::before { content: "— "; color: var(--gray-400); }
+
+  /* ── Endpoint card ── */
+  .endpoint {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    margin: 24px 0;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+  .endpoint-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .method {
+    display: inline-block; padding: 3px 10px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: .5px; white-space: nowrap;
+  }
+  .GET    { background: #dcfce7; color: #166534; }
+  .POST   { background: #dbeafe; color: #1e40af; }
+  .PUT    { background: #fef9c3; color: #854d0e; }
+  .DELETE { background: #fee2e2; color: #991b1b; }
+
+  .path {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--gray-900); font-weight: 500;
+  }
+  .auth-badge {
+    margin-left: auto; font-size: 10px; padding: 2px 8px;
+    border-radius: 20px; white-space: nowrap; font-weight: 500;
+  }
+  .auth-public  { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .auth-admin   { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+  .auth-user    { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+  .endpoint-body { padding: 16px; }
+  .endpoint-desc { color: var(--gray-600); margin-bottom: 14px; font-size: 13px; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--gray-900);
+    color: #e2e8f0;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 8px 0 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-400); margin-top: 12px; margin-bottom: 4px; }
+
+  /* ── Params table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 10px 0 14px; }
+  th { background: var(--gray-100); padding: 7px 12px; text-align: left; font-weight: 600; color: var(--gray-700); border: 1px solid var(--gray-200); font-size: 11px; letter-spacing: .5px; text-transform: uppercase; }
+  td { padding: 7px 12px; border: 1px solid var(--gray-200); color: var(--gray-700); vertical-align: top; }
+  td code { background: var(--gray-100); padding: 1px 5px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .required { color: var(--danger); font-size: 10px; font-weight: 600; }
+  .optional { color: var(--gray-400); font-size: 10px; }
+
+  /* ── Callout ── */
+  .callout {
+    display: flex; gap: 10px; padding: 12px 14px;
+    border-radius: var(--radius); margin: 10px 0;
+    font-size: 12.5px;
+  }
+  .callout.info  { background: #eff6ff; border-left: 3px solid var(--brand); color: #1e40af; }
+  .callout.warn  { background: #fffbeb; border-left: 3px solid var(--warn); color: #92400e; }
+  .callout.tip   { background: #f0fdf4; border-left: 3px solid var(--success); color: #14532d; }
+
+  /* ── Section divider ── */
+  .section-intro { color: var(--gray-500); font-size: 13px; margin-bottom: 4px; }
+
+  /* ── Status badge ── */
+  .status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .s200 { background: #dcfce7; color: #166534; }
+  .s400 { background: #fef9c3; color: #854d0e; }
+  .s401 { background: #fee2e2; color: #991b1b; }
+  .s403 { background: #fee2e2; color: #991b1b; }
+  .s409 { background: #fdf4ff; color: #7e22ce; }
+  .s500 { background: #fef2f2; color: #7f1d1d; }
+
+  /* ── Error table ── */
+  .error-grid { display: grid; grid-template-columns: auto 1fr 1fr; gap: 0; }
+
+  /* ── Print ── */
+  @media print {
+    body { font-size: 12px; }
+    .cover { min-height: 100vh; }
+    h2 { page-break-before: auto; }
+    .endpoint { page-break-inside: avoid; }
+    @page { margin: 15mm 18mm; size: A4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ COVER ══════════════════ -->
+<div class="cover">
+  <div class="cover-label">API Reference Documentation</div>
+  <h1>Lynceaus<br><span>Backend API</span></h1>
+  <div class="cover-sub">Complete reference for all REST endpoints — authentication, teams configuration, and release group tracking.</div>
+  <div class="cover-meta">
+    <div><span class="key">Base URL (Local)</span><span class="val">http://localhost:8080</span></div>
+    <div><span class="key">Base URL (Render)</span><span class="val">https://lynceaus-backend.onrender.com</span></div>
+    <div><span class="key">Auth Scheme</span><span class="val">JWT Bearer (HS256, 1 hr expiry)</span></div>
+    <div><span class="key">Stack</span><span class="val">Spring Boot 3 · H2 / PostgreSQL</span></div>
+  </div>
+  
+</div>
+
+<!-- ══════════════════ MAIN ══════════════════ -->
+<div class="page">
+
+<!-- ── Table of Contents ── -->
+<div class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview &amp; Conventions</a></li>
+    <li><a href="#auth">Authentication</a>
+      <ul class="sub">
+        <li>Login</li>
+        <li>Register (Admin only)</li>
+        <li>List Users (Admin only)</li>
+        <li>Refresh Token</li>
+        <li>Change Password</li>
+      </ul>
+    </li>
+    <li><a href="#teams">Teams</a>
+      <ul class="sub">
+        <li>List all teams</li>
+        <li>Create team</li>
+        <li>Update team</li>
+        <li>Delete team</li>
+        <li>Add repo to team</li>
+        <li>Remove repo from team</li>
+      </ul>
+    </li>
+    <li><a href="#releases">Release Groups</a>
+      <ul class="sub">
+        <li>List all groups</li>
+        <li>Create group</li>
+        <li>Delete group</li>
+        <li>List pipelines in group</li>
+        <li>Add pipeline to group</li>
+        <li>Remove pipeline from group</li>
+        <li>Reorder pipelines in group</li>
+      </ul>
+    </li>
+    <li><a href="#github">GitHub Proxy</a>
+      <ul class="sub">
+        <li>List workflows</li>
+        <li>List workflow runs</li>
+        <li>Get run details</li>
+        <li>Get run jobs</li>
+        <li>List branches</li>
+        <li>Get repo info</li>
+        <li>Rate limit status</li>
+        <li>Pipeline summary</li>
+      </ul>
+    </li>
+    <li><a href="#health">Health Check</a></li>
+    <li><a href="#errors">Error Responses</a></li>
+    <li><a href="#flow">Auth Flow &amp; Usage Guide</a></li>
+  </ol>
+</div>
+
+<!-- ══════════════════ 1. OVERVIEW ══════════════════ -->
+<h2 id="overview">1. Overview &amp; Conventions</h2>
+
+<p>All endpoints are prefixed with <code>/api</code>. Request and response bodies use <strong>JSON</strong>. The <code>Content-Type</code> header must be <code>application/json</code> for all requests with a body.</p>
+
+<h3>Authentication</h3>
+<p>Protected endpoints require a JWT token in the <code>Authorization</code> header:</p>
+<pre>Authorization: Bearer &lt;token&gt;</pre>
+<p>Tokens are obtained from <code>POST /api/auth/login</code> and expire after <strong>1 hour</strong>. Use <code>POST /api/auth/refresh</code> to extend the session.</p>
+
+<h3>Access Levels</h3>
+<table>
+  <tr><th>Badge</th><th>Meaning</th></tr>
+  <tr><td><span class="auth-badge auth-public">Public</span></td><td>No authentication required</td></tr>
+  <tr><td><span class="auth-badge auth-user">Authenticated</span></td><td>Any valid JWT (viewer or admin role)</td></tr>
+  <tr><td><span class="auth-badge auth-admin">Admin only</span></td><td>JWT with <code>role=admin</code> required</td></tr>
+</table>
+
+<h3>Common Response Shape</h3>
+<p>Success responses return the created/updated resource or a simple acknowledgement:</p>
+<pre>{ "ok": true }</pre>
+<p>Error responses always include an <code>error</code> field:</p>
+<pre>{ "error": "Descriptive error message" }</pre>
+
+<!-- ══════════════════ 2. AUTH ══════════════════ -->
+<h2 id="auth">2. Authentication</h2>
+<p class="section-intro">User accounts are managed by an admin. Self-registration is not permitted.</p>
+
+<!-- Login -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method POST">POST</span>
+    <span class="path">/api/auth/login</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Authenticate with username and password. Returns a signed JWT token.</p>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>username</code></td><td>string</td><td><span class="required">Required</span></td><td>Account username</td></tr>
+      <tr><td><code>password</code></td><td>string</td><td><span class="required">Required</span></td><td>Account password (min 6 characters)</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>POST /api/auth/login
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "mypassword"
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW1lZXIiLCJyb2xlIjoidmlld2VyIiwiaWF0IjoxNzQ4NTkwMDAwLCJleHAiOjE3NDg1OTM2MDB9.xxx",
+  "expiresIn": 3600
+}</pre>
+    <div class="callout info">Save the <code>token</code> value — pass it as <code>Authorization: Bearer &lt;token&gt;</code> in all subsequent requests.</div>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s401">401</span></td><td>Wrong username or password</td><td><code>{ "error": "Invalid credentials" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Register -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method POST">POST</span>
+    <span class="path">/api/auth/register</span>
+    <span class="auth-badge auth-admin">Admin only</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Create a new user account. Only admins can register users. New accounts are always created with the <code>viewer</code> role.</p>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>username</code></td><td>string</td><td><span class="required">Required</span></td><td>Unique username</td></tr>
+      <tr><td><code>password</code></td><td>string</td><td><span class="required">Required</span></td><td>Initial password (min 6 characters). User should change on first login.</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>POST /api/auth/register
+Authorization: Bearer &lt;admin-token&gt;
+Content-Type: application/json
+
+{
+  "username": "john",
+  "password": "temp123"
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{ "ok": true }</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Missing username or password too short</td><td><code>{ "error": "Username required and password must be at least 6 characters" }</code></td></tr>
+      <tr><td><span class="status s403">403</span></td><td>Caller is not an admin</td><td><code>{ "error": "Access Denied" }</code></td></tr>
+      <tr><td><span class="status s409">409</span></td><td>Username already taken</td><td><code>{ "error": "Username already taken" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- List Users -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/auth/users</span>
+    <span class="auth-badge auth-admin">Admin only</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns all registered user accounts. Passwords are never included in the response.</p>
+    <div class="label">Example Request</div>
+    <pre>GET /api/auth/users
+Authorization: Bearer &lt;admin-token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>[
+  {
+    "username": "admin",
+    "role": "admin",
+    "createdAt": "2026-09-01T08:00:00Z",
+    "lastLogin": "2026-09-25T09:30:00Z"
+  },
+  {
+    "username": "alice",
+    "role": "viewer",
+    "createdAt": "2026-09-02T10:00:00Z",
+    "lastLogin": "2026-09-24T14:00:00Z"
+  }
+]</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s403">403</span></td><td>Caller is not an admin</td><td><code>{ "error": "Access Denied" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Refresh -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method POST">POST</span>
+    <span class="path">/api/auth/refresh</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Exchange a valid (non-expired) token for a new one with a fresh 1-hour expiry. No request body needed.</p>
+    <div class="label">Example Request</div>
+    <pre>POST /api/auth/refresh
+Authorization: Bearer &lt;token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW1lZXIiLCJyb2xlIjoidmlld2VyIiwiaWF0IjoxNzQ4NTkzNjAwLCJleHAiOjE3NDg1OTcyMDB9.yyy"
+}</pre>
+    <div class="callout warn">The old token remains valid until its original expiry time. Discard it after receiving the new one.</div>
+  </div>
+</div>
+
+<!-- Change Password -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method POST">POST</span>
+    <span class="path">/api/auth/change-password</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Change the password of the currently logged-in user. Requires the current password for verification.</p>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>oldPassword</code></td><td>string</td><td><span class="required">Required</span></td><td>Current password for verification</td></tr>
+      <tr><td><code>newPassword</code></td><td>string</td><td><span class="required">Required</span></td><td>New password (min 6 characters)</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>POST /api/auth/change-password
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  "oldPassword": "temp123",
+  "newPassword": "myNewSecurePass!"
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{ "ok": true }</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Old password incorrect or new password too short</td><td><code>{ "error": "Current password is incorrect" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════ 3. TEAMS ══════════════════ -->
+<h2 id="teams">3. Teams</h2>
+<p class="section-intro">Teams group GitHub repositories for display in the dashboard sidebar. Stored in PostgreSQL — changes are shared across all users in real time.</p>
+
+<!-- GET /api/teams -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/teams</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns all teams with their associated repositories, sorted alphabetically by team name.</p>
+    <div class="label">Example Request</div>
+    <pre>GET /api/teams
+Authorization: Bearer &lt;token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>[
+  {
+    "id": "3f2a1b4c-d5e6-7890-abcd-ef1234567890",
+    "name": "Phoenix",
+    "repos": [
+      "my-org/job-manager",
+      "my-org/job-manager-ui",
+      "my-org/recommendation",
+      "my-org/my-service"
+    ]
+  },
+  {
+    "id": "9d8e7f6a-b1c2-3456-abcd-ef0987654321",
+    "name": "Transformers",
+    "repos": [
+      "my-org/integration-controller",
+      "my-org/maintenanceplan",
+      "my-org/notification"
+    ]
+  }
+]</pre>
+  </div>
+</div>
+
+<!-- POST /api/teams -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method POST">POST</span>
+    <span class="path">/api/teams</span>
+    <span class="auth-badge auth-admin">Admin only</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Create a new team with an optional initial list of repositories.</p>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>name</code></td><td>string</td><td><span class="required">Required</span></td><td>Team display name (max 128 chars)</td></tr>
+      <tr><td><code>repos</code></td><td>string[]</td><td><span class="optional">Optional</span></td><td>List of repos in <code>org/repo</code> format. Defaults to empty list.</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>POST /api/teams
+Authorization: Bearer &lt;admin-token&gt;
+Content-Type: application/json
+
+{
+  "name": "Phoenix",
+  "repos": [
+    "my-org/my-service",
+    "my-org/recommendation",
+    "my-org/job-manager"
+  ]
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "id": "3f2a1b4c-d5e6-7890-abcd-ef1234567890",
+  "name": "Phoenix",
+  "repos": [
+    "my-org/my-service",
+    "my-org/recommendation",
+    "my-org/job-manager"
+  ]
+}</pre>
+  </div>
+</div>
+
+<!-- PUT /api/teams/{id} -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method PUT">PUT</span>
+    <span class="path">/api/teams/{id}</span>
+    <span class="auth-badge auth-admin">Admin only</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Update a team's name and/or replace its entire repository list. Send only the fields you want to change. When <code>repos</code> is provided it <strong>replaces</strong> the full list — it is not additive.</p>
+    <div class="label">Path Parameter</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>id</code></td><td>Team UUID (from <code>GET /api/teams</code>)</td></tr>
+    </table>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>name</code></td><td>string</td><td><span class="optional">Optional</span></td><td>New team name</td></tr>
+      <tr><td><code>repos</code></td><td>string[]</td><td><span class="optional">Optional</span></td><td>Full replacement repo list</td></tr>
+    </table>
+    <div class="label">Example — Rename only</div>
+    <pre>PUT /api/teams/3f2a1b4c-d5e6-7890-abcd-ef1234567890
+Authorization: Bearer &lt;admin-token&gt;
+Content-Type: application/json
+
+{
+  "name": "Phoenix v2"
+}</pre>
+    <div class="label">Example — Replace repo list</div>
+    <pre>PUT /api/teams/3f2a1b4c-d5e6-7890-abcd-ef1234567890
+Authorization: Bearer &lt;admin-token&gt;
+Content-Type: application/json
+
+{
+  "repos": [
+    "my-org/my-service",
+    "my-org/new-service"
+  ]
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "id": "3f2a1b4c-d5e6-7890-abcd-ef1234567890",
+  "name": "Phoenix v2",
+  "repos": [
+    "my-org/my-service",
+    "my-org/new-service"
+  ]
+}</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Team ID not found</td><td><code>{ "error": "Team not found: &lt;id&gt;" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- DELETE /api/teams/{id} -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method DELETE">DELETE</span>
+    <span class="path">/api/teams/{id}</span>
+    <span class="auth-badge auth-admin">Admin only</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Permanently delete a team and all of its repository associations. This action cannot be undone.</p>
+    <div class="label">Path Parameter</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>id</code></td><td>Team UUID (from <code>GET /api/teams</code>)</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>DELETE /api/teams/3f2a1b4c-d5e6-7890-abcd-ef1234567890
+Authorization: Bearer &lt;admin-token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{ "ok": true }</pre>
+  </div>
+</div>
+
+<!-- POST /api/teams/{id}/repos -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method POST">POST</span>
+    <span class="path">/api/teams/{id}/repos</span>
+    <span class="auth-badge auth-admin">Admin only</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Add a single repository to an existing team. Returns the updated team with the full repos list. Duplicate repos are rejected.</p>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>repo</code></td><td>string</td><td><span class="required">Required</span></td><td>Repository in <code>org/repo-name</code> format</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>POST /api/teams/3f2a1b4c-d5e6-7890-abcd-ef1234567890/repos
+Authorization: Bearer &lt;admin-token&gt;
+Content-Type: application/json
+
+{
+  "repo": "my-org/new-service"
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "id": "3f2a1b4c-d5e6-7890-abcd-ef1234567890",
+  "name": "Phoenix",
+  "repos": [
+    "my-org/job-manager",
+    "my-org/new-service",
+    "my-org/my-service"
+  ]
+}</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Repo already in team</td><td><code>{ "error": "Repo already exists in this team" }</code></td></tr>
+      <tr><td><span class="status s400">400</span></td><td>Missing repo field</td><td><code>{ "error": "Repo is required" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- DELETE /api/teams/{id}/repos -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method DELETE">DELETE</span>
+    <span class="path">/api/teams/{id}/repos?repo=org/name</span>
+    <span class="auth-badge auth-admin">Admin only</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Remove a single repository from a team. The repo name is passed as a query parameter. Returns the updated team.</p>
+    <div class="label">Path Parameter</div>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>id</code></td><td>path</td><td>Team UUID</td></tr>
+      <tr><td><code>repo</code></td><td>query</td><td>Repo name in <code>org/repo-name</code> format (URL-encode the <code>/</code> as <code>%2F</code> if needed)</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>DELETE /api/teams/3f2a1b4c-d5e6-7890-abcd-ef1234567890/repos?repo=my-org%2Fnew-service
+Authorization: Bearer &lt;admin-token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "id": "3f2a1b4c-d5e6-7890-abcd-ef1234567890",
+  "name": "Phoenix",
+  "repos": [
+    "my-org/job-manager",
+    "my-org/my-service"
+  ]
+}</pre>
+    <div class="callout tip">In Postman, add <code>repo</code> as a Query Param in the Params tab — Postman will handle the URL encoding automatically.</div>
+  </div>
+</div>
+
+<!-- ══════════════════ 4. RELEASE GROUPS ══════════════════ -->
+<h2 id="releases">4. Release Groups</h2>
+<p class="section-intro">Named containers (e.g. "2609", "2610") that group pipeline runs belonging to a release. Any authenticated user can create groups. A pipeline run must be added inside an existing group — standalone tagging is not supported.</p>
+
+<!-- GET /api/releases -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/releases</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns all release groups ordered by creation date (newest first), each with a pipeline count.</p>
+    <div class="label">Example Request</div>
+    <pre>GET /api/releases
+Authorization: Bearer &lt;token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>[
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "2610",
+    "createdBy": "user@example.com",
+    "createdAt": "2026-09-24T08:00:00Z",
+    "pipelineCount": 3
+  },
+  {
+    "id": "f9e8d7c6-b5a4-3210-fedc-ba9876543210",
+    "name": "2609",
+    "createdBy": "user@example.com",
+    "createdAt": "2026-09-10T09:00:00Z",
+    "pipelineCount": 5
+  }
+]</pre>
+  </div>
+</div>
+
+<!-- POST /api/releases -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method POST">POST</span>
+    <span class="path">/api/releases</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Create a new release group. Group names must be unique across all users.</p>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>name</code></td><td>string</td><td><span class="required">Required</span></td><td>Release name (e.g. "2609", "2610"). Max 128 chars.</td></tr>
+      <tr><td><code>createdBy</code></td><td>string</td><td><span class="optional">Optional</span></td><td>Username of the creator. Set to the authenticated user's JWT username if omitted.</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>POST /api/releases
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  "name": "2610",
+  "createdBy": "user@example.com"
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "2610",
+  "createdBy": "user@example.com",
+  "createdAt": "2026-09-24T08:00:00Z",
+  "pipelineCount": 0
+}</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Name is missing or blank</td><td><code>{ "error": "name is required" }</code></td></tr>
+      <tr><td><span class="status s400">400</span></td><td>Name already exists</td><td><code>{ "error": "Release group name already exists" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- DELETE /api/releases/{id} -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method DELETE">DELETE</span>
+    <span class="path">/api/releases/{id}</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Delete a release group and all pipeline runs inside it. Only the group's creator or an admin can delete it.</p>
+    <div class="label">Path Parameter</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>id</code></td><td>Release group UUID (from <code>GET /api/releases</code>)</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>DELETE /api/releases/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+Authorization: Bearer &lt;token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{ "ok": true }</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Group ID not found</td><td><code>{ "error": "Release group not found: &lt;id&gt;" }</code></td></tr>
+      <tr><td><span class="status s403">403</span></td><td>Caller is not the creator or an admin</td><td><code>{ "error": "Only the creator or an admin can delete this release group" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- GET /api/releases/{id}/pipelines -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/releases/{id}/pipelines</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns all pipeline runs added to the specified release group, ordered by date added (newest first).</p>
+    <div class="label">Path Parameter</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>id</code></td><td>Release group UUID</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>GET /api/releases/a1b2c3d4-e5f6-7890-abcd-ef1234567890/pipelines
+Authorization: Bearer &lt;token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>[
+  {
+    "id": "11223344-5566-7788-99aa-bbccddeeff00",
+    "groupId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "runId": "12345678",
+    "repo": "my-org/my-service",
+    "branch": "main",
+    "runNumber": 42,
+    "message": "fix: resolve memory leak in polling loop",
+    "note": "Approved by team lead",
+    "addedBy": "alice",
+    "addedAt": "2026-09-24T10:00:00Z"
+  }
+]</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Group ID not found</td><td><code>{ "error": "Release group not found: &lt;id&gt;" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- POST /api/releases/{id}/pipelines -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method POST">POST</span>
+    <span class="path">/api/releases/{id}/pipelines</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Add a pipeline run to a release group. The same <code>runId</code> cannot be added to the same group twice. <code>addedBy</code> is set from the JWT token.</p>
+    <div class="label">Path Parameter</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>id</code></td><td>Release group UUID</td></tr>
+    </table>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>runId</code></td><td>string</td><td><span class="required">Required</span></td><td>GitHub Actions run ID</td></tr>
+      <tr><td><code>repo</code></td><td>string</td><td><span class="optional">Optional</span></td><td>Repository in <code>org/repo</code> format</td></tr>
+      <tr><td><code>branch</code></td><td>string</td><td><span class="optional">Optional</span></td><td>Branch name</td></tr>
+      <tr><td><code>runNumber</code></td><td>integer</td><td><span class="optional">Optional</span></td><td>Run number shown in GitHub Actions UI</td></tr>
+      <tr><td><code>message</code></td><td>string</td><td><span class="optional">Optional</span></td><td>Commit message or short description</td></tr>
+      <tr><td><code>note</code></td><td>string</td><td><span class="optional">Optional</span></td><td>Free-text annotation (max 1024 chars)</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>POST /api/releases/a1b2c3d4-e5f6-7890-abcd-ef1234567890/pipelines
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  "runId": "12345678",
+  "repo": "my-org/my-service",
+  "branch": "main",
+  "runNumber": 42,
+  "message": "fix: resolve memory leak in polling loop",
+  "note": "Approved by team lead"
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "id": "11223344-5566-7788-99aa-bbccddeeff00",
+  "groupId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "runId": "12345678",
+  "repo": "my-org/my-service",
+  "branch": "main",
+  "runNumber": 42,
+  "message": "fix: resolve memory leak in polling loop",
+  "note": "Approved by team lead",
+  "addedBy": "alice",
+  "addedAt": "2026-09-24T10:00:00Z"
+}</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Group not found</td><td><code>{ "error": "Release group not found: &lt;id&gt;" }</code></td></tr>
+      <tr><td><span class="status s400">400</span></td><td><code>runId</code> missing</td><td><code>{ "error": "runId is required" }</code></td></tr>
+      <tr><td><span class="status s400">400</span></td><td>Run already in this group</td><td><code>{ "error": "Pipeline run already added to this group" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- DELETE /api/releases/{id}/pipelines/{pipelineId} -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method DELETE">DELETE</span>
+    <span class="path">/api/releases/{id}/pipelines/{pipelineId}</span>
+    <span class="auth-badge auth-user">Authenticated</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Remove a specific pipeline run from a release group. Any authenticated user can remove any pipeline (use the group delete endpoint to remove the whole group).</p>
+    <div class="label">Path Parameters</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>id</code></td><td>Release group UUID</td></tr>
+      <tr><td><code>pipelineId</code></td><td>Pipeline entry UUID (the <code>id</code> field from the pipeline object, not the <code>runId</code>)</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>DELETE /api/releases/a1b2c3d4-e5f6-7890-abcd-ef1234567890/pipelines/11223344-5566-7788-99aa-bbccddeeff00
+Authorization: Bearer &lt;token&gt;</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{ "ok": true }</pre>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Group not found</td><td><code>{ "error": "Release group not found: &lt;id&gt;" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PATCH /api/releases/{id}/pipelines/order -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method PUT" style="background:#fef9c3;color:#854d0e;">PATCH</span>
+    <span class="path">/api/releases/{id}/pipelines/order</span>
+    <span class="auth-badge auth-admin">Admin only</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Save a new display order for the pipeline runs in a group (used after drag-to-reorder in the UI). Pass all pipeline entry IDs for the group in the desired order — the backend sets <code>displayOrder</code> to the 1-based position in this array.</p>
+    <div class="label">Path Parameter</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>id</code></td><td>Release group UUID</td></tr>
+    </table>
+    <div class="label">Request Body</div>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td><code>order</code></td><td>string[]</td><td><span class="required">Required</span></td><td>All pipeline entry UUIDs for the group in the new desired order</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>PATCH /api/releases/a1b2c3d4-e5f6-7890-abcd-ef1234567890/pipelines/order
+Authorization: Bearer &lt;admin-token&gt;
+Content-Type: application/json
+
+{
+  "order": [
+    "11223344-5566-7788-99aa-bbccddeeff00",
+    "aabbccdd-eeff-0011-2233-445566778899"
+  ]
+}</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{ "ok": true }</pre>
+    <div class="callout warn">Pass <strong>all</strong> pipeline IDs for the group — any ID omitted from the list will retain its old <code>displayOrder</code> value, which can cause ordering gaps.</div>
+    <div class="label">Error Responses</div>
+    <table>
+      <tr><th>Status</th><th>Condition</th><th>Body</th></tr>
+      <tr><td><span class="status s400">400</span></td><td>Group not found</td><td><code>{ "error": "Release group not found: &lt;id&gt;" }</code></td></tr>
+      <tr><td><span class="status s400">400</span></td><td><code>order</code> missing or empty</td><td><code>{ "error": "order is required" }</code></td></tr>
+      <tr><td><span class="status s403">403</span></td><td>Caller is not an admin</td><td><code>{ "error": "Admin role required" }</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════ 5. GITHUB PROXY ══════════════════ -->
+<h2 id="github">5. GitHub Proxy</h2>
+<p class="section-intro">All endpoints proxy to <code>https://your-ghe-host/api/v3</code> using the server-side PAT. The frontend never calls GHE directly. Responses are cached server-side for 3 minutes. If the primary token hits a rate limit and a secondary token is configured, the backend retries automatically.</p>
+<div class="callout info">All GitHub proxy endpoints are <strong>Public</strong> — no JWT required. If the server-side PAT is missing, all endpoints return <span class="status s500">503</span> <code>{"error":"GITHUB_TOKEN not configured on this server"}</code>.</div>
+
+<!-- GET workflows -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/github/{org}/{repo}/workflows</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns all GitHub Actions workflows defined in the repository. Proxies to <code>GET /repos/{org}/{repo}/actions/workflows</code>.</p>
+    <div class="label">Path Parameters</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>org</code></td><td>GitHub organisation name (e.g. <code>my-org</code>)</td></tr>
+      <tr><td><code>repo</code></td><td>Repository name</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>GET /api/github/my-org/my-service/workflows</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "total_count": 2,
+  "workflows": [
+    { "id": 123456, "name": "CI", "state": "active", "path": ".github/workflows/ci.yml" },
+    { "id": 123457, "name": "Deploy", "state": "active", "path": ".github/workflows/deploy.yml" }
+  ]
+}</pre>
+  </div>
+</div>
+
+<!-- GET workflow runs -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/github/{org}/{repo}/workflows/{wfId}/runs</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns runs for a specific workflow. Proxies to <code>GET /repos/{org}/{repo}/actions/workflows/{wfId}/runs</code>. All query parameters (e.g. <code>per_page</code>, <code>branch</code>, <code>status</code>) are forwarded as-is.</p>
+    <div class="label">Path Parameters</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>org</code></td><td>GitHub organisation name</td></tr>
+      <tr><td><code>repo</code></td><td>Repository name</td></tr>
+      <tr><td><code>wfId</code></td><td>Workflow ID (numeric, from the workflows list)</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>GET /api/github/my-org/my-service/workflows/123456/runs?per_page=10</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "total_count": 42,
+  "workflow_runs": [
+    {
+      "id": 12345678,
+      "run_number": 42,
+      "status": "completed",
+      "conclusion": "success",
+      "head_branch": "main",
+      "head_commit": { "message": "fix: resolve memory leak" },
+      "created_at": "2026-09-24T08:00:00Z"
+    }
+  ]
+}</pre>
+  </div>
+</div>
+
+<!-- GET run details -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/github/{org}/{repo}/runs/{runId}</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns details for a single workflow run. Proxies to <code>GET /repos/{org}/{repo}/actions/runs/{runId}</code>.</p>
+    <div class="label">Path Parameters</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>org</code></td><td>GitHub organisation name</td></tr>
+      <tr><td><code>repo</code></td><td>Repository name</td></tr>
+      <tr><td><code>runId</code></td><td>GitHub Actions run ID</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>GET /api/github/my-org/my-service/runs/12345678</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "id": 12345678,
+  "run_number": 42,
+  "status": "completed",
+  "conclusion": "success",
+  "head_branch": "main",
+  "head_commit": { "message": "fix: resolve memory leak", "author": { "name": "Sameer Saxena" } },
+  "created_at": "2026-09-24T08:00:00Z",
+  "updated_at": "2026-09-24T08:12:00Z"
+}</pre>
+  </div>
+</div>
+
+<!-- GET run jobs -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/github/{org}/{repo}/runs/{runId}/jobs</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns all jobs for a workflow run with their step-level details. Proxies to <code>GET /repos/{org}/{repo}/actions/runs/{runId}/jobs</code>.</p>
+    <div class="label">Path Parameters</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>org</code></td><td>GitHub organisation name</td></tr>
+      <tr><td><code>repo</code></td><td>Repository name</td></tr>
+      <tr><td><code>runId</code></td><td>GitHub Actions run ID</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>GET /api/github/my-org/my-service/runs/12345678/jobs</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "total_count": 3,
+  "jobs": [
+    {
+      "id": 99887766,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-24T08:00:00Z",
+      "completed_at": "2026-09-24T08:05:00Z",
+      "steps": [
+        { "name": "Checkout", "status": "completed", "conclusion": "success", "number": 1 },
+        { "name": "Build", "status": "completed", "conclusion": "success", "number": 2 }
+      ]
+    }
+  ]
+}</pre>
+  </div>
+</div>
+
+<!-- GET branches -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/github/{org}/{repo}/branches</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns all branches for a repository. Proxies to <code>GET /repos/{org}/{repo}/branches</code>. Pass <code>per_page=100</code> to retrieve up to 100 branches in one request.</p>
+    <div class="label">Path Parameters</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>org</code></td><td>GitHub organisation name</td></tr>
+      <tr><td><code>repo</code></td><td>Repository name</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>GET /api/github/my-org/my-service/branches?per_page=100</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>[
+  { "name": "main", "protected": true },
+  { "name": "feature/retry-logic", "protected": false }
+]</pre>
+  </div>
+</div>
+
+<!-- GET repo info -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/github/{org}/{repo}/info</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns metadata for a repository including its default branch. Proxies to <code>GET /repos/{org}/{repo}</code>.</p>
+    <div class="label">Path Parameters</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>org</code></td><td>GitHub organisation name</td></tr>
+      <tr><td><code>repo</code></td><td>Repository name</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>GET /api/github/my-org/my-service/info</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "id": 987654,
+  "name": "my-service",
+  "full_name": "my-org/my-service",
+  "default_branch": "main",
+  "private": true
+}</pre>
+  </div>
+</div>
+
+<!-- GET rate-limit-all -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/github/rate-limit-all</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns the current GitHub API rate limit status for both the primary and secondary tokens. <code>secondary</code> is <code>null</code> if no secondary token is configured. Use this to monitor token consumption before making bulk requests.</p>
+    <div class="label">Example Request</div>
+    <pre>GET /api/github/rate-limit-all</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "primary": {
+    "resources": {
+      "core":    { "limit": 5000, "remaining": 4723, "reset": 1748593600 },
+      "search":  { "limit": 30,   "remaining": 30,   "reset": 1748590060 },
+      "actions": { "limit": 15000,"remaining": 14800, "reset": 1748590060 }
+    },
+    "rate": { "limit": 5000, "remaining": 4723, "reset": 1748593600 }
+  },
+  "secondary": {
+    "resources": {
+      "core": { "limit": 5000, "remaining": 5000, "reset": 1748593600 }
+    },
+    "rate": { "limit": 5000, "remaining": 5000, "reset": 1748593600 }
+  }
+}</pre>
+    <div class="callout tip">The <code>reset</code> value is a Unix timestamp. Subtract <code>Date.now()/1000</code> to get seconds until the limit resets.</div>
+  </div>
+</div>
+
+<!-- GET pipeline-summary -->
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/github/{org}/{repo}/pipeline-summary</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Returns a composite snapshot for a repository in a single request: default branch, full branch list, and the last 100 runs for every <strong>CI</strong> workflow. Used by the dashboard to populate the pipeline view without multiple round-trips. Rate-limit fallback to secondary token is applied automatically.</p>
+    <div class="callout warn">This endpoint makes multiple upstream GHE calls (repo info + workflows + runs per workflow + branches) and is <strong>not cached</strong>. Avoid calling it more than once per page load.</div>
+    <div class="label">Path Parameters</div>
+    <table>
+      <tr><th>Param</th><th>Description</th></tr>
+      <tr><td><code>org</code></td><td>GitHub organisation name</td></tr>
+      <tr><td><code>repo</code></td><td>Repository name</td></tr>
+    </table>
+    <div class="label">Example Request</div>
+    <pre>GET /api/github/my-org/my-service/pipeline-summary</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "defaultBranch": "main",
+  "branches": [
+    { "name": "main", "protected": true },
+    { "name": "feature/retry-logic", "protected": false }
+  ],
+  "workflows": [
+    {
+      "id": 123456,
+      "name": "CI",
+      "runsRaw": {
+        "total_count": 100,
+        "workflow_runs": [ ... ]
+      }
+    }
+  ]
+}</pre>
+  </div>
+</div>
+
+<!-- ══════════════════ 6. HEALTH ══════════════════ -->
+<h2 id="health">6. Health Check</h2>
+
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="method GET">GET</span>
+    <span class="path">/api/health</span>
+    <span class="auth-badge auth-public">Public</span>
+  </div>
+  <div class="endpoint-body">
+    <p class="endpoint-desc">Verify the service is running. Used by monitoring and smoke tests after deployment.</p>
+    <div class="label">Example Request</div>
+    <pre>GET /api/health</pre>
+    <div class="label">Response — <span class="status s200">200 OK</span></div>
+    <pre>{
+  "ok": true,
+  "ts": "2026-09-23T05:30:00Z"
+}</pre>
+  </div>
+</div>
+
+<!-- ══════════════════ 6. ERRORS ══════════════════ -->
+<h2 id="errors">7. Error Responses</h2>
+<p>All error responses return JSON with an <code>error</code> field describing the problem.</p>
+<table>
+  <tr><th>Status</th><th>Cause</th><th>Example Body</th></tr>
+  <tr><td><span class="status s200">200</span></td><td>Success</td><td><code>{ resource } or { "ok": true }</code></td></tr>
+  <tr><td><span class="status s400">400</span></td><td>Validation failure (missing field, bad value)</td><td><code>{ "error": "Team name is required" }</code></td></tr>
+  <tr><td><span class="status s401">401</span></td><td>Invalid credentials on login</td><td><code>{ "error": "Invalid credentials" }</code></td></tr>
+  <tr><td><span class="status s403">403</span></td><td>Missing/expired token, or insufficient role</td><td><code>{ "error": "Only the creator or an admin can delete this release group" }</code></td></tr>
+  <tr><td><span class="status s409">409</span></td><td>Conflict (duplicate username, duplicate repo)</td><td><code>{ "error": "Username already taken" }</code></td></tr>
+  <tr><td><span class="status s500">500</span></td><td>Unexpected server error</td><td><code>{ "error": "..." }</code></td></tr>
+</table>
+
+<!-- ══════════════════ 7. FLOW ══════════════════ -->
+<h2 id="flow">8. Auth Flow &amp; Usage Guide</h2>
+
+<h3>First-time Setup (Admin)</h3>
+<p>On first deployment, a default admin account is created automatically:</p>
+<pre>username: admin
+password: Admin@123</pre>
+<div class="callout warn">Change the admin password immediately after first deployment using <code>POST /api/auth/change-password</code>.</div>
+
+<h3>Typical Session Flow</h3>
+<pre>1.  POST /api/auth/login                        → receive token (valid 1 hour)
+2.  GET  /api/teams                             → load team/repo config for sidebar
+3.  GET  /api/releases                          → load existing release groups
+4.  POST /api/releases                          → create a new release group (e.g. "2610")
+5.  POST /api/releases/{id}/pipelines           → add a pipeline run to the group
+6.  DELETE /api/releases/{id}/pipelines/{pId}   → remove a pipeline from the group
+7.  POST /api/auth/refresh                      → extend session before token expires
+8.  POST /api/auth/change-password              → user updates their password</pre>
+
+<h3>Admin Workflow — Adding a New Team Member</h3>
+<pre>1.  POST /api/auth/login          (admin credentials) → admin token
+2.  POST /api/auth/register       { username, password } → creates viewer account
+3.  Share temp password with user
+4.  User logs in and calls POST /api/auth/change-password</pre>
+
+<h3>Admin Workflow — Managing Teams</h3>
+<pre>1.  POST /api/auth/login          → admin token
+2.  POST /api/teams               → create team with initial repos
+3.  POST /api/teams/{id}/repos    → add individual repo
+4.  DELETE /api/teams/{id}/repos  → remove individual repo
+5.  PUT  /api/teams/{id}          → rename team or replace full repo list
+6.  DELETE /api/teams/{id}        → remove team entirely</pre>
+
+<h3>Token Format (JWT Payload)</h3>
+<pre>{
+  "sub":  "alice",       // username
+  "role": "viewer",       // "viewer" | "admin"
+  "iat":  1748590000,     // issued at (Unix timestamp)
+  "exp":  1748593600      // expires at (iat + 3600)
+}</pre>
+
+<div style="margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--gray-200); color: var(--gray-400); font-size: 11px; text-align: center;">
+  Lynceaus Backend API
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
