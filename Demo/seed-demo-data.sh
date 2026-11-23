@@ -10,16 +10,22 @@ echo "────────────────────────�
 echo "  Seeding demo data"
 echo "──────────────────────────────────────────────"
 
-# ── Login ───────────────────────────────────────────────────────────────────
+# ── Login (retry up to 15s — AdminBootstrap may still be running) ───────────
 echo "→ Logging in as $ADMIN_USER ..."
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$API/api/auth/login" \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"$ADMIN_USER\",\"password\":\"$ADMIN_PASS\"}")
-HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-BODY=$(echo "$RESPONSE" | head -1)
+HTTP_CODE="000"; BODY=""; ATTEMPTS=0
+until [ "$HTTP_CODE" = "200" ] || [ $ATTEMPTS -ge 10 ]; do
+  sleep 2
+  ATTEMPTS=$((ATTEMPTS + 1))
+  RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$API/api/auth/login" \
+    -H "Content-Type: application/json" \
+    -d "{\"username\":\"$ADMIN_USER\",\"password\":\"$ADMIN_PASS\"}")
+  HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+  BODY=$(echo "$RESPONSE" | head -1)
+  [ "$HTTP_CODE" != "200" ] && printf "  waiting for admin user... (attempt $ATTEMPTS)\r"
+done
 
 if [ "$HTTP_CODE" != "200" ]; then
-  echo "ERROR: Login failed (HTTP $HTTP_CODE). Is the backend running at $API?"
+  echo "ERROR: Login failed (HTTP $HTTP_CODE) after $ATTEMPTS attempts. Is the backend running at $API?"
   exit 1
 fi
 
