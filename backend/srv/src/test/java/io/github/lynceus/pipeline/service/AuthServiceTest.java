@@ -1,4 +1,4 @@
-package io.github.lynceaus.pipeline.service;
+package io.github.lynceus.pipeline.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-# Lynceaus — Operations Manual
+# Lynceus — Operations Manual
 
 A step-by-step guide for cloning, configuring, and deploying the dashboard.
 
@@ -36,8 +36,8 @@ For cloud deployment:
 ### 2a. Clone and set up the backend
 
 ```bash
-git clone https://github.com/your-fork/lynceaus.git
-cd lynceaus
+git clone https://github.com/your-fork/lynceus.git
+cd lynceus
 
 # Copy the example config
 cp backend/srv/src/main/resources/application.yaml.example \
@@ -124,22 +124,24 @@ There is no restriction on org vs. personal. Any GitHub repo your PAT can access
 
 Fork this repository on GitHub so Render and Vercel can connect to it.
 
-### 5b. Backend → Render
+### 5b. Backend + Database → Render
 
-1. In [Render](https://render.com), click **New → Web Service**.
-2. Connect your fork. Render will auto-detect the `render.yaml` at the root and pre-fill most settings.
+The `render.yaml` blueprint creates two resources automatically: a **PostgreSQL database** (`pipeline-db`) and a **Docker web service** (`lynceus-backend`). The backend is wired to the database via `JDBC_DATABASE_URL` — no manual connection string needed.
+
+1. In [Render](https://render.com), click **New → Blueprint**.
+2. Connect your fork. Render reads `render.yaml` and creates both the database and the web service.
 3. Set the following environment variables in the Render dashboard (marked `sync: false` in `render.yaml` — you must set these manually):
 
 | Variable | Value |
 |---|---|
 | `GITHUB_TOKEN` | Your GitHub PAT (see section 3) |
-| `ALLOWED_ORIGIN` | Your Vercel frontend URL — e.g. `https://my-dashboard.vercel.app` |
+| `ALLOWED_ORIGIN` | Your Vercel frontend URL — e.g. `https://my-dashboard.vercel.app` (fill this in after step 5c) |
 | `ADMIN_PASSWORD` | The admin password you want to use |
 
 4. (Optional) Add `GITHUB_TOKEN_SECONDARY` for a second PAT.
-5. Deploy. The first deploy bootstraps the `admin` user automatically.
+5. Deploy. The first deploy runs the schema migrations and bootstraps the `admin` user automatically.
 
-> **Persistent storage:** By default the H2 database lives in `/app/data` inside the container. Add a Render **Disk** (mount path `/app/data`, 1 GB) to keep your teams and release data across restarts. This requires a paid Render instance; the free tier resets on every deploy.
+> **Database tier:** Render's free PostgreSQL tier expires after 90 days, after which it costs ~$7/month. The schema is small and low-write, so the free tier is sufficient for initial use.
 
 ### 5c. Frontend → Vercel
 
@@ -149,7 +151,7 @@ Fork this repository on GitHub so Render and Vercel can connect to it.
 
 | Variable | Value |
 |---|---|
-| `VITE_API_BASE` | Your Render backend URL — e.g. `https://lynceaus-backend.onrender.com` |
+| `VITE_API_BASE` | Your Render backend URL — e.g. `https://lynceus-backend.onrender.com` |
 | `VITE_WORKFLOW_NAME` | Optional — filter to one workflow name; leave blank to show all |
 
 4. Deploy. Vercel detects Vite automatically.
@@ -208,7 +210,7 @@ The login endpoint is rate-limited: 10 consecutive failed attempts from the same
 | `ALLOWED_ORIGIN` | Yes | — | Frontend URL (exact match, no trailing slash) |
 | `ADMIN_USERNAME` | No | `admin` | Username of the bootstrapped admin account |
 | `ADMIN_PASSWORD` | Yes | — | Password of the bootstrapped admin account |
-| `SPRING_PROFILES_ACTIVE` | Yes | — | `render` (H2 file-based), `postgres` (PostgreSQL), or omit for local dev |
+| `SPRING_PROFILES_ACTIVE` | Yes | — | `postgres` (Render/cloud), or omit for local dev (H2) |
 
 ### PostgreSQL deployment
 

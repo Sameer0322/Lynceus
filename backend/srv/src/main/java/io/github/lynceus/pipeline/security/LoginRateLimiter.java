@@ -1,4 +1,4 @@
-package io.github.lynceaus.pipeline.security;
+package io.github.lynceus.pipeline.security;
 
 import org.springframework.stereotype.Component;
 import java.util.Map;

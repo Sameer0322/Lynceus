@@ -6,7 +6,7 @@
 
 	<parent>
 		<artifactId>backend-parent</artifactId>
-		<groupId>io.github.lynceaus</groupId>
+		<groupId>io.github.lynceus</groupId>
 		<version>${revision}</version>
 	</parent>
 

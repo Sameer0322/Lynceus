@@ -95,12 +95,12 @@ Login is rate-limited: 10 failed attempts within 5 minutes locks the IP out for 
 
 ## Deploy on Render + Vercel
 
-See [Manual.md](Manual.md) for a step-by-step deployment guide including environment variable reference, persistent storage setup, and GitHub Enterprise configuration.
+See [Manual.md](Manual.md) for a step-by-step deployment guide including environment variable reference and GitHub Enterprise configuration.
 
 **Short version:**
 1. Fork this repo.
-2. Connect the fork to Render — it reads `render.yaml` automatically. Set `GITHUB_TOKEN`, `ALLOWED_ORIGIN`, and `ADMIN_PASSWORD` in the Render dashboard.
-3. Import the fork into Vercel, set root directory to `frontend`, set `VITE_API_BASE` to your Render URL.
+2. In Render, click **New → Blueprint** and connect your fork — it reads `render.yaml` and creates both the PostgreSQL database and the backend service automatically. Set `GITHUB_TOKEN`, `ALLOWED_ORIGIN`, and `ADMIN_PASSWORD` in the Render dashboard.
+3. Import the fork into Vercel, set root directory to `frontend`, set `VITE_API_BASE` to your Render backend URL.
 
 ---
 
@@ -110,7 +110,7 @@ See [Manual.md](Manual.md) for a step-by-step deployment guide including environ
 |---|---|
 | Frontend | React 18, Vite, Material UI v5 |
 | Backend | Java 21, Spring Boot, Spring JDBC |
-| Database | H2 (local dev + Render); PostgreSQL (via `postgres` profile) |
+| Database | PostgreSQL (Render, cloud); H2 (local dev) |
 | Auth | JWT — admin logs in with username + password; admin manages other users |
 | GitHub proxy | All GitHub API calls go through the backend — PAT never reaches the browser |
 
