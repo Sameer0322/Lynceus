@@ -1,6 +1,6 @@
-package io.github.lynceaus.pipeline.controller;
+package io.github.lynceus.pipeline.controller;
 
-import io.github.lynceaus.pipeline.service.TeamsConfigService;
+import io.github.lynceus.pipeline.service.TeamsConfigService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -42,7 +42,7 @@ export default function LoginDialog({ open, onClose, onSuccess, required = false
       onClick={e => { if (!required && e.target === e.currentTarget) onClose(false); }}
     >
       <div className="modal">
-        <div className="modal-title">{required ? 'Lynceaus' : 'Admin Login'}</div>
+        <div className="modal-title">{required ? 'Lynceus' : 'Admin Login'}</div>
         <div className="modal-sub">{required ? 'Sign in to continue' : 'Admin credentials required'}</div>
         <form onSubmit={handleSubmit}>
           <div className="field">

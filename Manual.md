@@ -1,4 +1,4 @@
-# Lynceaus — Operations Manual
+# Lynceus — Operations Manual
 
 A step-by-step guide for cloning, configuring, and deploying the dashboard.
 
@@ -36,8 +36,8 @@ For cloud deployment:
 ### 2a. Clone and set up the backend
 
 ```bash
-git clone https://github.com/your-fork/lynceaus.git
-cd lynceaus
+git clone https://github.com/your-fork/lynceus.git
+cd lynceus
 
 # Copy the example config
 cp backend/srv/src/main/resources/application.yaml.example \
@@ -126,7 +126,7 @@ Fork this repository on GitHub so Render and Vercel can connect to it.
 
 ### 5b. Backend + Database → Render
 
-The `render.yaml` blueprint creates two resources automatically: a **PostgreSQL database** (`pipeline-db`) and a **Docker web service** (`lynceaus-backend`). The backend is wired to the database via `JDBC_DATABASE_URL` — no manual connection string needed.
+The `render.yaml` blueprint creates two resources automatically: a **PostgreSQL database** (`pipeline-db`) and a **Docker web service** (`lynceus-backend`). The backend is wired to the database via `JDBC_DATABASE_URL` — no manual connection string needed.
 
 1. In [Render](https://render.com), click **New → Blueprint**.
 2. Connect your fork. Render reads `render.yaml` and creates both the database and the web service.
@@ -151,7 +151,7 @@ The `render.yaml` blueprint creates two resources automatically: a **PostgreSQL 
 
 | Variable | Value |
 |---|---|
-| `VITE_API_BASE` | Your Render backend URL — e.g. `https://lynceaus-backend.onrender.com` |
+| `VITE_API_BASE` | Your Render backend URL — e.g. `https://lynceus-backend.onrender.com` |
 | `VITE_WORKFLOW_NAME` | Optional — filter to one workflow name; leave blank to show all |
 
 4. Deploy. Vercel detects Vite automatically.

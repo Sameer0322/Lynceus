@@ -1,4 +1,4 @@
-package io.github.lynceaus.pipeline;
+package io.github.lynceus.pipeline;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

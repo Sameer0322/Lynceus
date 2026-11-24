@@ -1,4 +1,4 @@
-package io.github.lynceaus.pipeline;
+package io.github.lynceus.pipeline;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

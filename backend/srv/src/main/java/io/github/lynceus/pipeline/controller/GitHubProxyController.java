@@ -1,6 +1,6 @@
-package io.github.lynceaus.pipeline.controller;
+package io.github.lynceus.pipeline.controller;
 
-import io.github.lynceaus.pipeline.service.GithubCacheService;
+import io.github.lynceus.pipeline.service.GithubCacheService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;

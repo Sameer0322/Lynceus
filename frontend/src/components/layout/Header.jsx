@@ -41,7 +41,7 @@ export default function Header({ onNavigateHome, onNavigateReleases, onRefresh, 
   return (
     <header className="header">
       <span className="header-title header-home-link" onClick={onNavigateHome} title="Go to home">
-        Lynceaus
+        Lynceus
       </span>
       <div className="header-divider" />
       <div className="header-stats">
