@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 import Sortable from 'sortablejs';
 import {
   apiGetReleases, apiCreateRelease, apiDeleteRelease,
@@ -9,7 +11,7 @@ import { ago, shortRepo } from '../utils.js';
 
 function Spin({ size = 'sm' }) { return <span className={`spin spin-${size}`} />; }
 
-function GroupList({ groups, auth, onSelect, onNewGroup, loading }) {
+function GroupList({ groups, auth, onSelect, onNewGroup, onDeleteGroup, loading, onBack }) {
   const [showForm, setShowForm] = useState(false);
   const [newName, setNewName] = useState('');
   const [creating, setCreating] = useState(false);
@@ -29,32 +31,43 @@ function GroupList({ groups, auth, onSelect, onNewGroup, loading }) {
     }
   }
 
+  function toggleForm() {
+    setShowForm(v => !v);
+    setCreateErr('');
+  }
+
   return (
     <div className="rg-view">
-      <div className="rg-header">
-        <span className="view-title" style={{ fontSize: 18 }}>Release Groups</span>
-        {auth?.role === 'admin' && (
-          <button className="btn-save rg-create-btn" onClick={() => setShowForm(v => !v)}>+ New Group</button>
+      <div className="view-header">
+        <button className="btn-back" onClick={onBack}>← Repositories</button>
+        <div className="view-header-row">
+          <span className="view-title">Release Groups</span>
+          {auth?.role === 'admin' && (
+            <button className="btn-icon" style={{ marginLeft: 'auto' }} onClick={toggleForm}>
+              + New Group
+            </button>
+          )}
+        </div>
+        {showForm && (
+          <div className="rg-create-form">
+            <input
+              className="finput rg-name-input"
+              type="text"
+              placeholder="e.g. 2610"
+              maxLength={128}
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
+              autoFocus
+            />
+            <button className="btn-save rg-create-btn" onClick={handleCreate} disabled={creating}>
+              {creating ? 'Creating…' : 'Create'}
+            </button>
+            <button className="btn-icon" onClick={toggleForm}>Cancel</button>
+            {createErr && <div className="form-error" style={{ display: 'block' }}>{createErr}</div>}
+          </div>
         )}
       </div>
-      {showForm && (
-        <div className="rg-create-form">
-          <input
-            className="finput rg-name-input"
-            type="text"
-            placeholder="e.g. 2025.11"
-            maxLength={128}
-            value={newName}
-            onChange={e => setNewName(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
-            autoFocus
-          />
-          <button className="btn-save rg-create-btn" onClick={handleCreate} disabled={creating}>
-            {creating ? 'Creating…' : 'Create'}
-          </button>
-          {createErr && <div className="form-error" style={{ display: 'block' }}>{createErr}</div>}
-        </div>
-      )}
 
       {loading ? (
         <div className="state-box"><Spin size="lg" /></div>
@@ -64,31 +77,43 @@ function GroupList({ groups, auth, onSelect, onNewGroup, loading }) {
         </div>
       ) : (
         <div className="rg-list">
-          {groups.map(g => (
-            <div key={g.id} className="rg-card" onClick={() => onSelect(g)}>
-              <div className="rg-card-info">
-                <span className="rg-card-name">{g.name}</span>
-                <span className="rg-card-meta">
-                  {(g.pipelineCount ?? 0)} pipeline{(g.pipelineCount ?? 0) !== 1 ? 's' : ''}
-                  {g.createdBy ? ` · created by ${g.createdBy}` : ''}
-                </span>
+          {groups.map(g => {
+            const count = g.pipelineCount ?? 0;
+            const dateStr = g.createdAt ? ago(g.createdAt) : '';
+            return (
+              <div key={g.id} className="rg-card">
+                <div className="rg-card-info">
+                  <span className="rg-card-name">{g.name}</span>
+                  <span className="rg-card-meta">
+                    {count} pipeline{count !== 1 ? 's' : ''}
+                    {g.createdBy ? ` · by ${g.createdBy}` : ''}
+                    {dateStr ? ` · ${dateStr}` : ''}
+                  </span>
+                </div>
+                <div className="rg-card-actions">
+                  <button className="btn-icon" onClick={() => onSelect(g)}>▶ View</button>
+                  {auth?.role === 'admin' && (
+                    <button
+                      className="btn-icon btn-danger-icon"
+                      onClick={() => onDeleteGroup(g.id, g.name, count)}
+                    >
+                      🗑 Delete
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="rg-card-actions">
-                <button className="btn-icon" onClick={e => { e.stopPropagation(); onSelect(g); }}>View →</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function GroupDetail({ group, auth, onBack, onGroupDeleted }) {
+function GroupDetail({ group, auth, onBack }) {
   const [pipelines, setPipelines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
-  const [deleting, setDeleting] = useState(false);
   const listRef = useRef(null);
   const sortableRef = useRef(null);
 
@@ -105,7 +130,6 @@ function GroupDetail({ group, auth, onBack, onGroupDeleted }) {
         onEnd: async () => {
           const orderedIds = [...listRef.current.querySelectorAll('[data-pipeline-id]')]
             .map(el => el.dataset.pipelineId);
-          // Update sequence numbers visually
           listRef.current.querySelectorAll('.rg-seq').forEach((badge, i) => { badge.textContent = i + 1; });
           try {
             await apiReorderPipelines(group.id, orderedIds);
@@ -140,39 +164,45 @@ function GroupDetail({ group, auth, onBack, onGroupDeleted }) {
     }
   }
 
-  async function handleDeleteGroup() {
-    if (!confirm(`Delete release group "${group.name}" and all its ${pipelines.length} pipeline${pipelines.length !== 1 ? 's' : ''}?`)) return;
-    setDeleting(true);
-    try {
-      await apiDeleteRelease(group.id);
-      onGroupDeleted(group.id);
-    } catch (e) {
-      alert(`Failed to delete: ${e.message}`);
-      setDeleting(false);
-    }
+  function handleDownloadExcel() {
+    const rows = pipelines.map((p, idx) => ({
+      '#': idx + 1,
+      'Repo': p.repo ?? '',
+      'Run #': p.runNumber ?? '',
+      'Branch': p.branch ?? '',
+      'Commit Message': (p.message ?? '').slice(0, 200),
+      'Run URL': p.repo && p.runId ? `https://github.com/${p.repo}/actions/runs/${p.runId}` : '',
+      'Added By': p.addedBy ?? '',
+      'I-Number': p.iNumber ?? '',
+      'Note': p.note ?? '',
+      'Added At': p.addedAt ? new Date(p.addedAt).toLocaleString() : '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Pipelines');
+    const safeGroupName = (group.name ?? 'release').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_');
+    XLSX.writeFile(wb, `${safeGroupName}_pipelines.xlsx`);
   }
 
   const count = pipelines.length;
 
   return (
     <div className="rg-view">
-      <div className="rg-header">
-        <button className="btn-back" onClick={onBack}>← Groups</button>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span className="view-title" style={{ fontSize: 18 }}>{group.name}</span>
-            <span className="rg-detail-slash">/</span>
-            <span className="rg-card-meta">
-              {count} pipeline{count !== 1 ? 's' : ''}
-              {group.createdBy ? ` · created by ${group.createdBy}` : ''}
-            </span>
-          </div>
+      <div className="view-header">
+        <div className="view-header-row">
+          <button className="btn-icon" onClick={onBack}>← Release Groups</button>
+          <span className="rg-detail-slash">/</span>
+          <span className="view-title" style={{ fontSize: 18 }}>{group.name}</span>
+          <span className="rg-card-meta">
+            {count} pipeline{count !== 1 ? 's' : ''}
+            {group.createdBy ? ` · created by ${group.createdBy}` : ''}
+          </span>
+          {auth?.role === 'admin' && (
+            <button className="btn-icon" style={{ marginLeft: 'auto' }} onClick={handleDownloadExcel}>
+              ⬇ Download Sequence
+            </button>
+          )}
         </div>
-        {auth?.role === 'admin' && (
-          <button className="btn-icon btn-danger-icon" onClick={handleDeleteGroup} disabled={deleting} title="Delete this release group">
-            {deleting ? <Spin /> : '🗑 Delete Group'}
-          </button>
-        )}
       </div>
 
       {loading ? (
@@ -199,13 +229,11 @@ function GroupDetail({ group, auth, onBack, onGroupDeleted }) {
                   <span className="rg-pipeline-num">#{p.runNumber}</span>
                   <span className="rg-pipeline-branch">⎇ {p.branch}</span>
                   <span className="rg-pipeline-msg">{(p.message || '').slice(0, 80)}</span>
-                  {auth?.role === 'admin' && (
-                    <button
-                      className="rg-remove-btn"
-                      title="Remove from group"
-                      onClick={() => handleRemove(p.id)}
-                    >✕</button>
-                  )}
+                  <button
+                    className="rg-remove-btn"
+                    title="Remove from group"
+                    onClick={() => handleRemove(p.id)}
+                  >✕</button>
                 </div>
                 <div className="rg-pipeline-meta">
                   Added by {p.addedBy}
@@ -224,6 +252,7 @@ function GroupDetail({ group, auth, onBack, onGroupDeleted }) {
 
 export default function ReleaseGroupsPage() {
   const { state, dispatch } = useApp();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
 
@@ -247,20 +276,25 @@ export default function ReleaseGroupsPage() {
     dispatch({ type: 'SET_RELEASE_GROUPS', payload: [...state.releaseGroups, { ...group, pipelineCount: 0 }] });
   }
 
-  function handleGroupDeleted(groupId) {
-    dispatch({ type: 'SET_RELEASE_GROUPS', payload: state.releaseGroups.filter(g => g.id !== groupId) });
-    setSelected(null);
+  async function handleDeleteGroup(groupId, name, count) {
+    const noun = `pipeline${count !== 1 ? 's' : ''}`;
+    if (!confirm(`Delete release group "${name}" and all ${count} ${noun} inside it?`)) return;
+    try {
+      await apiDeleteRelease(groupId);
+      dispatch({ type: 'SET_RELEASE_GROUPS', payload: state.releaseGroups.filter(g => g.id !== groupId) });
+      if (selected?.id === groupId) setSelected(null);
+    } catch (e) {
+      alert(`Failed to delete: ${e.message}`);
+    }
   }
 
   if (selected) {
-    // Find the latest version of the group from state
     const latestGroup = state.releaseGroups.find(g => g.id === selected.id) || selected;
     return (
       <GroupDetail
         group={latestGroup}
         auth={state.auth}
         onBack={() => setSelected(null)}
-        onGroupDeleted={handleGroupDeleted}
       />
     );
   }
@@ -272,6 +306,8 @@ export default function ReleaseGroupsPage() {
       loading={loading}
       onSelect={setSelected}
       onNewGroup={handleNewGroup}
+      onDeleteGroup={handleDeleteGroup}
+      onBack={() => navigate('/')}
     />
   );
 }
