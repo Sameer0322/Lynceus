@@ -1,6 +1,6 @@
-# Lynceaus
+# Lynceus
 
-A self-hosted **release tracking dashboard** built on top of GitHub Actions. Most CI dashboards show per-repo status — Lynceaus aggregates runs across many repos into logical teams, and lets you tag runs into named release groups (sprints, milestones) that you manage entirely through the UI, with no config files or redeployments needed.
+A self-hosted **release tracking dashboard** built on top of GitHub Actions. Most CI dashboards show per-repo status — Lynceus aggregates runs across many repos into logical teams, and lets you tag runs into named release groups (sprints, milestones) that you manage entirely through the UI, with no config files or redeployments needed.
 
 - **Cross-repo team view** — group any number of repos into a team, see pass/fail/running status at a glance
 - **Release groups** — tag runs into named groups (e.g. sprint numbers), drag to reorder
