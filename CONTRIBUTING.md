@@ -13,8 +13,8 @@ Thank you for considering a contribution!
 ### Quick start with Docker Compose
 
 ```bash
-git clone https://github.com/your-fork/lynceus.git
-cd lynceus
+git clone https://github.com/your-fork/Lynceus.git
+cd Lynceus
 export GITHUB_TOKEN=ghp_...
 export JWT_SECRET=a-random-string-at-least-32-characters-long
 export ADMIN_PASSWORD=YourAdminPassword
