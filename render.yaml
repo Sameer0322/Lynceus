@@ -1,37 +1,34 @@
+databases:
+  - name: pipeline-db
+    databaseName: pipeline
+    user: pipeline
+
 services:
   - type: web
     name: lynceaus-backend
     env: docker
     dockerfilePath: ./backend/Dockerfile
     healthCheckPath: /api/health
-    # Persistent disk retains H2 data across restarts (required on free tier workaround).
-    # If you prefer PostgreSQL, remove the disk block and set SPRING_PROFILES_ACTIVE=postgres
-    # plus JDBC_DATABASE_URL from a Render PostgreSQL database — see Manual.md section 7.
-    disk:
-      name: pipeline-data
-      mountPath: /app/data
-      sizeGB: 1
     envVars:
       - key: SPRING_PROFILES_ACTIVE
-        value: render                # change to postgres if using a Render PostgreSQL database
+        value: postgres
+      - key: JDBC_DATABASE_URL
+        fromDatabase:
+          name: pipeline-db
+          property: jdbcConnectionString
       - key: GITHUB_TOKEN
         sync: false          # required — your GitHub Personal Access Token
       - key: GITHUB_TOKEN_SECONDARY
         sync: false          # optional — second PAT for rate-limit failover
       - key: GITHUB_API_URL
-        value: https://api.github.com   # change to https://<host>/api/v3 for GitHub Enterprise
+        value: https://api.github.com
       - key: WORKFLOW_NAME
-        value: ""            # optional — filter to one workflow name; leave blank to show all
+        value: ""
       - key: JWT_SECRET
-        generateValue: true  # Render generates a random secret on first deploy
+        generateValue: true
       - key: ALLOWED_ORIGIN
         sync: false          # required — set to your Vercel frontend URL (e.g. https://my-dashboard.vercel.app)
       - key: ADMIN_USERNAME
         value: admin
       - key: ADMIN_PASSWORD
         sync: false          # required — set your admin password manually in the Render dashboard
-      # Uncomment the following when SPRING_PROFILES_ACTIVE=postgres and you have a Render PostgreSQL database:
-      # - key: JDBC_DATABASE_URL
-      #   fromDatabase:
-      #     name: pipeline-db
-      #     property: jdbcConnectionString
