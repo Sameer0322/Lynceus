@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
 import { GithubAPI } from '../services/github.js';
-import { apiGetReleases, apiAddPipeline, apiRemovePipeline, apiCreateRelease } from '../services/api.js';
+import { apiGetReleases, apiAddPipeline, apiRemovePipeline, apiCreateRelease, apiGetReleasePipelines } from '../services/api.js';
 import { stCls, stLabel, stIconText, ago, dur, sha7, shortRepo } from '../utils.js';
 import TagPipelineDialog from '../components/dialogs/TagPipelineDialog.jsx';
 
@@ -126,9 +126,21 @@ export default function RunListPage({ onSelectWorkflow }) {
     } else {
       loadWorkflowData();
     }
-    // Load release groups
+    // Load release groups and populate runGroupMap for tagged status
     apiGetReleases()
-      .then(groups => dispatch({ type: 'SET_RELEASE_GROUPS', payload: groups }))
+      .then(async groups => {
+        dispatch({ type: 'SET_RELEASE_GROUPS', payload: groups });
+        const map = {};
+        await Promise.allSettled(groups.map(async g => {
+          try {
+            const pipelines = await apiGetReleasePipelines(g.id);
+            for (const p of pipelines) {
+              map[String(p.runId)] = { pipelineId: p.id, groupId: g.id, groupName: g.name };
+            }
+          } catch {}
+        }));
+        dispatch({ type: 'SET_RUN_GROUP_MAP', payload: map });
+      })
       .catch(() => {});
   }, [repo, workflowId]);
 
