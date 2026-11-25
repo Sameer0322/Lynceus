@@ -1,8 +1,8 @@
-package io.github.lynceaus.pipeline.controller;
+package io.github.lynceus.pipeline.controller;
 
-import io.github.lynceaus.pipeline.security.JwtUtil;
-import io.github.lynceaus.pipeline.security.LoginRateLimiter;
-import io.github.lynceaus.pipeline.service.AuthService;
+import io.github.lynceus.pipeline.security.JwtUtil;
+import io.github.lynceus.pipeline.security.LoginRateLimiter;
+import io.github.lynceus.pipeline.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

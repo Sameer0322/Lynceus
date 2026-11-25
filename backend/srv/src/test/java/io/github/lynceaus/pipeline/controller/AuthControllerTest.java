@@ -1,4 +1,4 @@
-package io.github.lynceaus.pipeline.controller;
+package io.github.lynceus.pipeline.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

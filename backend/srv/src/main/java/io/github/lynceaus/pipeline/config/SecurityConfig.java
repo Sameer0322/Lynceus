@@ -1,6 +1,6 @@
-package io.github.lynceaus.pipeline.config;
+package io.github.lynceus.pipeline.config;
 
-import io.github.lynceaus.pipeline.security.JwtAuthFilter;
+import io.github.lynceus.pipeline.security.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

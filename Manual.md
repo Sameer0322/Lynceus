@@ -1,4 +1,4 @@
-# Lynceaus — Operations Manual
+# Lynceus — Operations Manual
 
 A step-by-step guide for cloning, configuring, and deploying the dashboard.
 
@@ -36,8 +36,8 @@ For cloud deployment:
 ### 2a. Clone and set up the backend
 
 ```bash
-git clone https://github.com/your-fork/lynceaus.git
-cd lynceaus
+git clone https://github.com/your-fork/Lynceus.git
+cd Lynceus
 
 # Copy the example config
 cp backend/srv/src/main/resources/application.yaml.example \
@@ -149,7 +149,7 @@ Fork this repository on GitHub so Render and Vercel can connect to it.
 
 | Variable | Value |
 |---|---|
-| `VITE_API_BASE` | Your Render backend URL — e.g. `https://lynceaus-backend.onrender.com` |
+| `VITE_API_BASE` | Your Render backend URL — e.g. `https://Lynceus-backend.onrender.com` |
 | `VITE_WORKFLOW_NAME` | Optional — filter to one workflow name; leave blank to show all |
 
 4. Deploy. Vercel detects Vite automatically.
