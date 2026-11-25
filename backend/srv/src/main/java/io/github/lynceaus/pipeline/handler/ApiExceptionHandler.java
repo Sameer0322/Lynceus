@@ -1,4 +1,4 @@
-package io.github.lynceaus.pipeline.handler;
+package io.github.lynceus.pipeline.handler;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

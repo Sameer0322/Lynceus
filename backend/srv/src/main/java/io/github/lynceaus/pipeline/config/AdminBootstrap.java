@@ -1,6 +1,6 @@
-package io.github.lynceaus.pipeline.config;
+package io.github.lynceus.pipeline.config;
 
-import io.github.lynceaus.pipeline.service.AuthService;
+import io.github.lynceus.pipeline.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
